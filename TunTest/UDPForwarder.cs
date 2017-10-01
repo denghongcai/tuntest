@@ -10,7 +10,7 @@ using Caching;
 using Org.Mentalis.Network.ProxySocket;
 using System.Threading.Tasks;
 
-namespace TunTest
+namespace Tun2Any
 {
     class UDPForwarder
     {
@@ -21,6 +21,7 @@ namespace TunTest
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private static Random random = new Random();
+
         public static string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

@@ -1,17 +1,21 @@
 ﻿using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 
-namespace TunTest
+namespace Tun2Any
 {
     class Device
     {
         private const string UsermodeDeviceSpace = "\\\\.\\Global\\";
         private object thisLock = new object();
 
+        string deviceName;
         IntPtr device;
         FileStream stream;
         //
@@ -73,6 +77,15 @@ namespace TunTest
         {
             string deviceGuid = GetGuidByName(name);
             device = openDeviceByGuid(deviceGuid);
+            deviceName = name;
+        }
+
+        public int getMTU()
+        {
+            var adapter = NetworkInterface.GetAllNetworkInterfaces().Where(i => i.Name == this.deviceName).First();
+            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+            IPv4InterfaceProperties p = adapterProperties.GetIPv4Properties();
+            return p.Mtu;
         }
 
         public FileStream getStream()
@@ -84,7 +97,10 @@ namespace TunTest
                     return stream;
                 }
 
-                stream = new FileStream(device, FileAccess.ReadWrite, true, 10000, true);
+                SafeFileHandle handleValue = null;
+                handleValue = new SafeFileHandle(device, true);
+
+                stream = new FileStream(handleValue, FileAccess.ReadWrite,  10000, true);
 
                 return stream;
             }
